@@ -1,0 +1,61 @@
+{
+    "categories": "Kategoriler",
+    "search": "Aranacak değer girin...",
+    "homePage": "Ana Sayfa",
+    "shoppingCartPage":"Sepetim",
+    "allCategories": "Tüm Kategoriler",
+    "paymentIsSuccessful":"Ödeme işlemi başarıyla tamamlandı",
+    "addingBookinShoppingCartIsSuccessful":"Kitap başarıyla sepete eklendi",
+    "noBooksInShoppingCart":"Sepette ürün bulunmuyor !",
+    "Bilim": "Bilim",
+    "remove":{
+        "doYouWantToDeleted":"Silmek istiyor musunuz?",
+        "cancelBtn":"Vazgeç",
+        "confirmBtn":"Sil"
+    },
+    "payment" :{
+        "title":"Ödeme Sayfası",
+        "pay":"Ödeme yap",
+        "nextBtn":"Sonraki",
+        "prevBtn":"Önceki",
+        "completeBtn":"Ödeme Yap",
+        "buyer":{
+            "title":"Alıcı bilgileri",
+            "name":"Alıcı Adı",
+            "surname":"Alıcı Soyadı",
+            "identityNumber":"T.C. Numarası",
+            "email":"Mail Adresi",
+            "gsmNumber":"Telefon Numarası"
+        },
+        "address":"Adres Bilgileri",
+        "isSameAddress":"Teslim ve Fatura Adresi Aynı",
+        "shippingAddress":{
+            "title":"Teslim Adresi",
+            "country":"Ülke",
+            "city":"Şehir",
+            "zipCode":"Posta Kodu",
+            "contactName":"Teslim Alacak Kişi",
+            "description" : "Açık Adres"
+        },
+        "billingAddress":{
+            "title":"Fatura Adresi",
+            "country":"Ülke",
+            "city":"Şehir",
+            "zipCode":"Posta Kodu",
+            "contactName":"Teslim Alacak Kişi",
+            "description" : "Fatura Adresi"
+        },
+        "creditCart":{
+            "title":"Kredi Kartı Bilgileri",
+            "cardHolderName":"Kart Sahibinin Adı",
+            "cardNumber":"Kart numarası",
+            "expireMonthAndYear":"Son Kullanma Tarihi",
+            "cvc":"Cvc"
+
+        }
+        
+
+    }
+    
+    
+}

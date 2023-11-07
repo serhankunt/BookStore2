@@ -1,0 +1,21 @@
+{
+    "categories": "Categories",   
+    "search": "Enter value to search for...",
+    "homePage": "Home Page",
+    "shoppingCartPage":"My Shopping Cart",
+    "allCategories": "All Categories",
+    "addingBookinShoppingCartIsSuccessful":"Adding book to the shopping cart is successful",
+    "noBooksInShoppingCart":"No book in shopping cart !",
+    "Bilim" : "Science",
+    "doYouWantToDeleted" :"Do you want to delete",
+    "remove":{
+        "doYouWantToDeleted":"Do you want to delete?",
+        "cancelBtn":"Cancel",
+        "confirmBtn":"Remove"
+    },
+    "payment" :{
+        "title":"Payment Page"
+
+    }
+
+}
