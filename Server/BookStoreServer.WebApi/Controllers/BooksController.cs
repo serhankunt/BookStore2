@@ -21,7 +21,7 @@ public sealed class BooksController : ControllerBase
         AppDbContext context = new();
         List<Book> books = new();
         if(request.CategoryId == null){
-             books = context.Books
+             books = context.Books//.AsNoTracking()
             .Where(p => p.IsActive == true && p.IsDeleted == false)
             .Where(p => p.Title.ToLower().Contains(request.Search.ToLower()) || p.ISBN.Contains(request.Search))
             .OrderByDescending(p=>p.CreateAt)

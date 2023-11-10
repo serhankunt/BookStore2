@@ -1,12 +1,15 @@
 ﻿using BookStoreServer.WebApi.Context;
 using BookStoreServer.WebApi.Dtos;
+using BookStoreServer.WebApi.Enums;
 using BookStoreServer.WebApi.Models;
+using BookStoreServer.WebApi.Services;
 using BookStoreServer.WebApi.ValueObject;
 using Iyzipay;
 using Iyzipay.Model;
 using Iyzipay.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace BookStoreServer.WebApi.Controllers
 {
@@ -15,11 +18,11 @@ namespace BookStoreServer.WebApi.Controllers
     public sealed class ShoppingCartsController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Payment(PaymentDto requestDto)
+        public async Task<IActionResult> Payment(PaymentDto requestDto)
         {
             decimal total = 0;
             decimal comission = 0;
-            foreach(var book in requestDto.Books)
+            foreach (var book in requestDto.Books)
             {
                 total += book.Price.Value;
             }
@@ -29,7 +32,7 @@ namespace BookStoreServer.WebApi.Controllers
             string requestCurrency = requestDto.Books[0]?.Price.Currency;
             if (!string.IsNullOrEmpty(requestCurrency))
             {
-                switch(requestCurrency)
+                switch (requestCurrency)
                 {
                     case "₺":
                         currency = Currency.TRY;
@@ -42,7 +45,7 @@ namespace BookStoreServer.WebApi.Controllers
                         break;
                     default:
                         throw new Exception("Para birimi bulunamadı");
-                        break;
+                        
                 }
             }
             else
@@ -51,7 +54,7 @@ namespace BookStoreServer.WebApi.Controllers
             }
 
             //Bağlantı bilgilerini istiyor
-            Options options = new Options();
+            Iyzipay.Options options = new Iyzipay.Options();
             options.ApiKey = "sandbox-MBmzWVOeil9arc1EVT1PLGRh07ARuxGr";
             options.SecretKey = "DW8050suGcchWnAoveQoglj4YfUq7NHi";
             options.BaseUrl = "https://sandbox-api.iyzipay.com";
@@ -70,19 +73,19 @@ namespace BookStoreServer.WebApi.Controllers
             PaymentCard paymentCard = requestDto.PaymentCard;
             request.PaymentCard = paymentCard;
 
-         
+
 
             Buyer buyer = requestDto.Buyer;
             buyer.Id = Guid.NewGuid().ToString();
             request.Buyer = buyer;
 
-           
+
             request.ShippingAddress = requestDto.ShippingAddress;
 
             request.BillingAddress = requestDto.BillingAddress;
 
             List<BasketItem> basketItems = new List<BasketItem>();
-            foreach(var book in requestDto.Books)
+            foreach (var book in requestDto.Books)
             {
                 BasketItem item = new BasketItem();
                 item.Category1 = "Book";
@@ -97,34 +100,62 @@ namespace BookStoreServer.WebApi.Controllers
             request.BasketItems = basketItems;
 
             Payment payment = Iyzipay.Model.Payment.Create(request, options);
-            if(payment.Status == "success")
+            if (payment.Status == "success")
             {
+                string orderNumber = Order.GetNewOrderNumber();
+
                 List<Order> orders = new();
-                foreach(var book in requestDto.Books)
+                
+                foreach (var book in requestDto.Books)
                 {
                     Order order = new()
                     {
-                        OrderNumber = request.BasketId,
+                        OrderNumber = orderNumber,
                         BookId = book.Id,
                         Price = new Money(book.Price.Value, book.Price.Currency),
                         PaymentDate = DateTime.Now,
                         PaymentType = request.PaymentGroup,
-                        PaymentNumber = payment.PaymentId
+                        PaymentNumber = payment.PaymentId,
+                        CreatedAt = DateTime.Now
+                       
                     };
                     orders.Add(order);
                 }
+
                 AppDbContext context = new();
+                OrderStatus orderStatus = new()
+                {
+                    OrderNumber = orderNumber,
+                    Status = OrderStatusEnum.AwaitingApproval,
+                    StatusDate = DateTime.Now
+                };
+
+
+                context.OrderStatuses.Add(orderStatus);
                 context.Orders.AddRange(orders);
                 context.SaveChanges();
-                return Ok(payment);
+
+                string response = await MailService.SendEmailAsync(requestDto.Buyer.Email, "Siparişiniz alındı",$@"
+                <h1>Siparişiniz alındı<h1>
+                <p>Sipariş numaranız:{orderNumber}<p> 
+                <p>Ödeme numaranız:{payment.PaymentId}<p>
+                <p>Ödeme Tutarınız:{payment.PaidPrice}<p>
+                <p>Ödeme tarihiniz:{DateTime.Now}<p>
+                   <p>Ödeme Tipiniz: Kredi Kartı<p>
+                <p>Ödeme durumunuz:Onay Bekliyor<p>");
+
+                //smtp=>mail sistemin
+
+                return NoContent();
+
             }
             else
             {
                 return BadRequest(payment.ErrorMessage);
-            }
+    }
             //payment status :success or failure
             //ErrorMessage: Hata mesajı var.
-            return NoContent();
+           
         }
     }
 }

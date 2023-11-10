@@ -1,4 +1,5 @@
-﻿using BookStoreServer.WebApi.Models;
+﻿using BookStoreServer.WebApi.Enums;
+using BookStoreServer.WebApi.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 namespace BookStoreServer.WebApi.Context
@@ -8,14 +9,19 @@ namespace BookStoreServer.WebApi.Context
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
-            optionsBuilder.UseSqlServer("Data Source=DESKTOP-L1BOF4K\\SQLEXPRESS;Initial Catalog=YMYP_BookStoreDb1;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
+            optionsBuilder.UseSqlServer("Data Source=DESKTOP-L1BOF4K\\SQLEXPRESS;Initial Catalog=YMYP_BookStoreDb5;Integrated Security=True;Connect Timeout=30;Encrypt=False;Trust Server Certificate=False;Application Intent=ReadWrite;Multi Subnet Failover=False");
         }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Book> Books { get; set; }  
         public DbSet<BookCategory> BookCategories { get; set; }
         public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderStatus> OrderStatuses { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<OrderStatus>()
+            .HasIndex(p => new { p.Status, p.OrderNumber }).IsUnique();
+
             modelBuilder.Entity<Book>().OwnsOne(p => p.Price, price=>
             {
                 price.Property(p => p.Value).HasColumnType("money");
@@ -29,7 +35,8 @@ namespace BookStoreServer.WebApi.Context
             });
 
             modelBuilder.Entity<BookCategory>().HasKey(p => new { p.BookId , p.CategoryId });
-
+            // AppDbContext class içindeki OnModelCreating metodundaki seed işleminden önce
+           
             //Domain Driven Design
             //Value Object
             modelBuilder.Entity<Category>().HasData(//Seed data
